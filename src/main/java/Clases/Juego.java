@@ -8,15 +8,9 @@ public class Juego {
     public String getTurno() {
         return (Turno % 2 == 0) ? "N" : "B";
     }
-
-    public int getTurnoInt() {
-        return Turno;
-    }
-
     public Juego() {
         this.Turno = 0;
     }
-
     public void setTurno() {
         this.Turno = Turno + 1;
     }
@@ -279,4 +273,5 @@ public class Juego {
             }
         return jugadaa;
     }
+
 }

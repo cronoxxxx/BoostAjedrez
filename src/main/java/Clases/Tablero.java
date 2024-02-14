@@ -12,46 +12,30 @@ public class Tablero {
      */
     public Tablero() {
         tablero = new Pieza[8][8];
-        Pieza TN1 = new Torre("negro");
-        Pieza TN2 = new Torre("negro");
-        Pieza CN1 = new Caballo("negro");
-        Pieza CN2 = new Caballo("negro");
-        Pieza AN1 = new Alfil("negro");
-        Pieza AN2 = new Alfil("negro");
-        Pieza QN = new Reina("negro");
-        Pieza KN = new Rey("negro");
-        tablero[0][0] = TN1;
-        tablero[0][1] = CN1;
-        tablero[0][2] = AN1;
-        tablero[0][5] = AN2;
-        tablero[0][6] = CN2;
-        tablero[0][3] = QN;
-        tablero[0][4] = KN;
-        tablero[0][7] = TN2;
-        for (int i = 0; i < tablero.length; i++) {
+
+        // Inicializar piezas negras y blancas
+        for (int i = 0; i < 8; i++) {
+            if (i == 0 || i == 7) {
+                tablero[0][i] = new Torre("negro");
+                tablero[7][i] = new Torre("blanco");
+            } else if (i == 1 || i == 6) {
+                tablero[0][i] = new Caballo("negro");
+                tablero[7][i] = new Caballo("blanco");
+            } else if (i == 2 || i == 5) {
+                tablero[0][i] = new Alfil("negro");
+                tablero[7][i] = new Alfil("blanco");
+            } else if (i == 3) {
+                tablero[0][i] = new Reina("negro");
+                tablero[7][i] = new Reina("blanco");
+            } else /*if (i == 4)*/ {
+                tablero[0][i] = new Rey("negro");
+                tablero[7][i] = new Rey("blanco");
+            }
+
             tablero[1][i] = new Peon("negro");
-        }
-        Pieza TB1 = new Torre("blanco");
-        Pieza TB2 = new Torre("blanco");
-        Pieza CB1 = new Caballo("blanco");
-        Pieza CB2 = new Caballo("blanco");
-        Pieza AB1 = new Alfil("blanco");
-        Pieza AB2 = new Alfil("blanco");
-        Pieza QB = new Reina("blanco");
-        Pieza KB = new Rey("blanco");
-        tablero[7][0] = TB1;
-        tablero[7][1] = CB1;
-        tablero[7][2] = AB1;
-        tablero[7][5] = AB2;
-        tablero[7][6] = CB2;
-        tablero[7][3] = QB;
-        tablero[7][4] = KB;
-        tablero[7][7] = TB2;
-        for (int i = 0; i < tablero.length; i++) {
             tablero[6][i] = new Peon("blanco");
         }
     }
-
     /**
      * Método para imprimir el tablero con una fila de letras arriba y los números correspodientes a cada fila en el lateral izquierdo. Si la casilla es nula imprime [].
      */
@@ -77,18 +61,12 @@ public class Tablero {
 
     /**
      * Método para comprobar si hay pieza en una posición introducida definida por una fila y una columna.
-     *
-     * @param fila fila
-     * @param columna columna
-     * @return Booleano indicando que hay pieza en la posición introducida mientras la matriz no ande nula
+     * @return tablero distinto de nulo
      */
     public boolean hayPieza(int fila, int columna) {
-        boolean haypieza = false;
-        if (tablero[fila][columna] != null) {
-            haypieza = true;
-        }
-        return haypieza;
+        return tablero[fila][columna] != null;
     }
+
 
     /**
      * Método para obtener el color de la pieza en una posición introducida definida por una fila y una columna.
@@ -133,14 +111,21 @@ public class Tablero {
         tablero[fila][columna] = null;
     }
 
+    public void quitaPieza(Posicion pos) {
+        tablero[pos.getFila()][pos.getColumna()] = null;
+    }
+
+
     /**
      * Método para comprobar si hay alguna pieza en el trayecto de un movimiento definido por dos posiciones.
      *
      * @param mov
      * @return Booleano indicando si hay pieza en el trayecto del movimiento introducido.
-     */
+
     public boolean hayPiezaEntre(Movimiento mov) {
         boolean pieza = false;
+
+        // int step = (mov.getPosInicial().getFila() - mov.getPosFinal().getFila() > 0) ? -1 : 1; (FORMA POSIBLE  DE RESUMIR)
         if (mov.esVertical()) { //Verifica es vertical
             if (mov.getPosInicial().getFila() - mov.getPosFinal().getFila() > 0) { //si la fila inicial es mayor que la fila final, se mueve para "abajo" (realmente llendo para arriba al ser su valor positivo)
                 for (int i = 1; i < Math.abs(mov.saltoVertical()); i++) { // pi : 3,0 ; pf : 1,0   i<-2 ---
@@ -156,49 +141,92 @@ public class Tablero {
                 }
             }
         }
-        if (mov.esHorizontal()) {
+        else if (mov.esHorizontal()) {
             if (mov.getPosInicial().getColumna() - mov.getPosFinal().getColumna() > 0) {   // 3,5 - 3,3
                 for (int i = 1; i < mov.saltoHorizontal(); i++) { // i < 2
-                    if (hayPieza(mov.getPosInicial().getFila(), (mov.getPosInicial().getColumna() - i))) { //3,4 //si en esa columna no hay pieza, se valida
+                    if (hayPieza(mov.getPosInicial().getFila(), (mov.getPosInicial().getColumna() - i))) { //3,4 //si en esa columna hay pieza, se valida
                         pieza = true;
                     }
                 }
             } else {
-                for (int i = 1; i < mov.saltoHorizontal(); i++) {
+                for (int i = 1; i < mov.saltoHorizontal(); i++) { //SI ES DE 3,3 A 3,5, SE SUMA LA COLUMNA A 1 (3,4), SI ESA POSICION TIENE PIEZA,
                     if (hayPieza(mov.getPosInicial().getFila(), (mov.getPosInicial().getColumna() + i))) {
                         pieza = true;
                     }
                 }
             }
         }
-        if (mov.esDiagonal()) {
+        else if (mov.esDiagonal()) { //POSICION (3,3) Y (1,1)
             int fila = mov.getPosInicial().getFila() - mov.getPosFinal().getFila();
-            int columna = mov.getPosInicial().getColumna() - mov.getPosFinal().getColumna();
-            if (fila < 0 && columna < 0) {
-                for (int i = 1; i < Math.abs(fila); i++) {
-                    if (hayPieza(mov.getPosInicial().getFila() + i, mov.getPosInicial().getColumna() + i))
+            int columna = mov.getPosInicial().getColumna() - mov.getPosFinal().getColumna(); //SE RESTA FILA Y COLUMNA
+            if (fila < 0 && columna < 0) { //SI ES DE 1 1 A 3 3 = (-2,-2)
+                for (int i = 1; i < Math.abs(fila); i++) { //(2)
+                    if (hayPieza(mov.getPosInicial().getFila() + i, mov.getPosInicial().getColumna() + i)) //se suma +1 a la fila y columna inicial, que representa posicion y fila mas uno (2,2)
                         pieza = true;
                 }
             }
-            if (fila > 0 && columna < 0) {
-                for (int i = 1; i < Math.abs(fila); i++) {
-                    if (hayPieza(mov.getPosInicial().getFila() - i, mov.getPosInicial().getColumna() + i))
+            if (fila > 0 && columna < 0) {  // (3,3) Y (1,5)
+                for (int i = 1; i < Math.abs(fila); i++) { //MAGNITUD DE DISTANCIA OBTENIDO CON FILA, ya que en el resultado mayor
+                    if (hayPieza(mov.getPosInicial().getFila() - i, mov.getPosInicial().getColumna() + i)) //resulta en posicion 2,4
                         pieza = true;
                 }
             }
-            if (fila < 0 && columna > 0) {
+            if (fila < 0 && columna > 0) { //SI ES DE 1,5 A 3,3
                 for (int i = 1; i < Math.abs(fila); i++) {
-                    if (hayPieza(mov.getPosInicial().getFila() + i, mov.getPosInicial().getColumna() - i))
+                    if (hayPieza(mov.getPosInicial().getFila() + i, mov.getPosInicial().getColumna() - i)) //IGUAL, RESULTA EN 2,4
                         pieza = true;
                 }
             }
-            if (fila > 0 && columna > 0) {
-                for (int i = 1; i < Math.abs(fila); i++) {
+            if (fila > 0 && columna > 0) { //AQUI SERIA DE 3 3 A 1,1
+                for (int i = 1; i < Math.abs(fila); i++) { //RESULTADO = 2,2
                     if (hayPieza(mov.getPosInicial().getFila() - i, mov.getPosInicial().getColumna() - i))
                         pieza = true;
                 }
             }
         }
+        return pieza;
+    }*/
+
+
+    public boolean hayPiezaEntre(Movimiento mov) {
+        boolean pieza = false;
+
+        if (mov.esVertical()) {
+            int step = (mov.getPosInicial().getFila() - mov.getPosFinal().getFila() > 0) ? -1 : 1;
+
+            for (int i = 1; i < Math.abs(mov.saltoVertical()); i++) {
+                int fila = mov.getPosInicial().getFila() + (i * step);
+                if (hayPieza(fila, mov.getPosInicial().getColumna())) {
+                    pieza = true;
+                }
+            }
+        }
+
+        if (mov.esHorizontal()) {
+            int step = (mov.getPosInicial().getColumna() - mov.getPosFinal().getColumna() > 0) ? -1 : 1;
+
+            for (int i = 1; i < mov.saltoHorizontal(); i++) {
+                int columna = mov.getPosInicial().getColumna() + (i * step);
+                if (hayPieza(mov.getPosInicial().getFila(), columna)) {
+                    pieza = true;
+                }
+            }
+        }
+
+        if (mov.esDiagonal()) {
+            int filaStep = (mov.getPosInicial().getFila() - mov.getPosFinal().getFila() > 0) ? -1 : 1;
+            int columnaStep = (mov.getPosInicial().getColumna() - mov.getPosFinal().getColumna() > 0) ? -1 : 1;
+
+            for (int i = 1; i < Math.abs(mov.getPosInicial().getFila() - mov.getPosFinal().getFila()); i++) { //desde fila, ya que es el valor mayor, o es el valor con el que se guia
+                int fila = mov.getPosInicial().getFila() + (i * filaStep);
+                int columna = mov.getPosInicial().getColumna() + (i * columnaStep);
+
+                if (hayPieza(fila, columna)) {
+                    pieza = true;
+                }
+            }
+        }
+
         return pieza;
     }
 
@@ -207,9 +235,6 @@ public class Tablero {
      *
      * @param pos
      */
-    public void quitaPieza(Posicion pos) {
-        tablero[pos.getFila()][pos.getColumna()] = null;
-    }
 
     /**
      * Método para devolver la pieza que se encuentra en la posición introducida.
@@ -218,44 +243,96 @@ public class Tablero {
      * @return Pieza que se encuentra en la posición introducida.
      */
     public Pieza devuelvePieza(Posicion pos) {
-        return tablero[pos.getFila()][pos.getColumna()];
+        return tablero[pos.getFila()][pos.getColumna()]; //retorna una pieza en la posicion fila y columna del tablero
     }
 
+    // Busca la posición de una pieza en el tablero y devuelve la posición encontrada.
     public Posicion devuelvePosicion(Pieza pieza) {
+        // Inicializa la variable posi como nula.
         Posicion posi = null;
+
+        // Itera a través de todas las filas del tablero.
         for (int i = 0; i < tablero.length; i++) {
+            // Itera a través de todas las columnas del tablero.
             for (int j = 0; j < tablero.length; j++) {
-                if (devuelvePieza(new Posicion(i, j)) == pieza) {
+                // Comprueba si la pieza en la posición actual es igual a la pieza proporcionada.
+                if (devuelvePieza(new Posicion(i, j)) == pieza) { //itero una nueva posicion , y ahi pongo las coordenadas
+                    // Si hay coincidencia, asigna la posición actual a la variable posi.
                     posi = new Posicion(i, j);
                 }
             }
         }
+        // Devuelve la posición encontrada (si alguna) o nula si no se encontró coincidencia.
         return posi;
     }
+    /**
+     * Verifica si se cumple la regla de "en passant" en el ajedrez.
+     * @param mov El movimiento que se está evaluando.
+     * @return true si se cumple "en passant", false en caso contrario.
+     */
+    public boolean enPassant(Movimiento mov) {
+        boolean passant = false;
+        //lo mismo que las blancas pero en version negra
 
+        Posicion pos = new Posicion(mov.getPosInicial().getFila(), mov.getPosFinal().getColumna()); //Inicializa la posicion potencial
+
+        if (devuelvePieza(mov.getPosInicial()).getColor().equals("blanco") && mov.saltoVertical() == -1 && !hayPieza(mov.getPosFinal().getFila(), mov.getPosFinal().getColumna()) && mov.esDiagonal()) {
+            // Verifica si la pieza en la posición potencial es un peón negro con un movimiento inicial de 1 y el peón blanco se encuentra en la fila correcta.
+            if (devuelvePieza(pos) != null && devuelvePieza(pos).getColor().equals("negro") && devuelvePieza(pos).getMovimientos() == 1 && mov.getPosInicial().getFila() == 3) {
+                passant = true; // Se cumple la condición "en passant".
+            }
+        }
+
+        // Para el peón  (NEGRO)
+        //mov.saltoVertical() == 1
+        //por ejemplo de 4,2 a 5,3
+        //devuelvePieza(pos).getColor().equals("blanco") = 4,3, que esta al costado del negro que esta en 4,2, es la POSICION POTENCIAL
+        //devuelvePieza(pos).getMovimientos() == 1 //que la pieza en 4,3 tenga solo 1 movimiento
+        //y que este en la columna 4 y no este nula
+        //Si la pieza
+        if (devuelvePieza(mov.getPosInicial()).getColor().equals("negro") && mov.saltoVertical() == 1 && !hayPieza(mov.getPosFinal().getFila(), mov.getPosFinal().getColumna()) && mov.esDiagonal()) {
+            // Verifica si la pieza en la posición potencial es un peón blanco con un movimiento inicial de 1 y el peón negro se encuentra en la fila correcta.
+            if (devuelvePieza(pos) != null && devuelvePieza(pos).getColor().equals("blanco") && devuelvePieza(pos).getMovimientos() == 1 && mov.getPosInicial().getFila() == 4) {
+                passant = true; // Se cumple la condición "en passant".
+            }
+        }
+
+        return passant; // Devuelve true si se cumple "en passant", de lo contrario, devuelve false.
+    }
     /**
      * Método para mover las piezas al introducir un movimiento. Suma 1 movimiento al contador de la pieza, pone la pieza en la posición final, quita la pieza de la posición inicial y comprueba si algún peón promociona.
      *
      * @param mov
      */
     public void mover(Movimiento mov, Juego juego) {
+        // Verifica si se trata de un movimiento "en passant"
         if (enPassant(mov)) {
+            // Realiza el movimiento "en passant"
+            ponPieza(devuelvePieza(mov.getPosInicial())  ,   mov.getPosFinal()); //Agarra del tablero la posicion inical de una pieza con el metodo (devuelvePieza) que retorna una pieza en esa posicion, pasa la posicion donde desea mover y ademas, usa el metodo ponerPieza para ponerla en el tablero
+            quitaPieza(mov.getPosInicial()); //quita la pieza en la posicion inical
+            quitaPieza(mov.getPosInicial().getFila(), mov.getPosFinal().getColumna()); //quito la posicion potencial
+            devuelvePieza(mov.getPosFinal()).setMovimientos(); //me da la pieza y le coloco el conteo de los movimientos
+        }
+        // Si no es un enroque, realiza un movimiento normal
+        else if (!enroque(mov, juego)) {
+            // Realiza el movimiento normal
             ponPieza(devuelvePieza(mov.getPosInicial()), mov.getPosFinal());
             quitaPieza(mov.getPosInicial());
-            quitaPieza(mov.getPosInicial().getFila(), mov.getPosFinal().getColumna());
             devuelvePieza(mov.getPosFinal()).setMovimientos();
-        } else if (!enroque(mov, juego)) {
-            ponPieza(devuelvePieza(mov.getPosInicial()), mov.getPosFinal());
-            quitaPieza(mov.getPosInicial());
-            devuelvePieza(mov.getPosFinal()).setMovimientos();
+            // Verifica la promoción de peones
             promocionarPeon(mov);
-        } else {
+        }
+        // Si es un enroque, realiza el movimiento especial
+        else {
             moverEnroque(mov, juego);
             quitaPieza(mov.getPosInicial());
             quitaPieza(mov.getPosFinal());
         }
+
+        // Cambia el turno del juego
         juego.setTurno();
     }
+
 
     /**
      * Método para comprobar si algún peón promociona. Para ello comprueba si hay algún peón en la posición final y, en el caso de que así sea, pregunta al usuario cual es la pieza a la que quiere promocionar el peón.
@@ -271,7 +348,7 @@ public class Tablero {
                 opcion = teclado.nextInt();
                 Pieza pieza = new Peon("blanco");
                 switch (opcion) {
-                    case 1:
+                    case 1: //Agarra la pieza de la posicion final (peon) y le pasa el color a la reina, aparte le asigna fila y columna de la posicion final, y lo agrega al tablero
                         ponPieza(new Reina(devuelvePieza(mov.getPosFinal()).getColor()), mov.getPosFinal().getFila(), mov.getPosFinal().getColumna());
                         break;
                     case 2:
@@ -523,8 +600,8 @@ public class Tablero {
             Pieza piezaFinal = devuelvePieza(movimiento.getPosFinal());
 
             if (piezaInicial != null && piezaFinal != null && piezaInicial.getMovimientos() == 0 && piezaFinal.getMovimientos() == 0) {
-                String nombreClaseInicial = piezaInicial.getClass().getSimpleName().strip();
-                String nombreClaseFinal = piezaFinal.getClass().getSimpleName().strip();
+                String nombreClaseInicial = piezaInicial.getClass().getSimpleName();
+                String nombreClaseFinal = piezaFinal.getClass().getSimpleName();
 
                 boolean esReyTorre;
 
@@ -564,21 +641,7 @@ public class Tablero {
         }
     }
 
-    public boolean enPassant(Movimiento mov) {
-        boolean passant = false;
-        Posicion pos = new Posicion(mov.getPosInicial().getFila(), mov.getPosFinal().getColumna());
-        if (devuelvePieza(mov.getPosInicial()).getColor().equals("blanco") && mov.saltoVertical() == -1 && !hayPieza(mov.getPosFinal().getFila(), mov.getPosFinal().getColumna()) && mov.esDiagonal()) {
-            if (devuelvePieza(pos) != null && devuelvePieza(pos).getColor().equals("negro") && devuelvePieza(pos).getMovimientos() == 1 && mov.getPosInicial().getFila() == 3) {
-                passant = true;
-            }
-        }
-        if (devuelvePieza(mov.getPosInicial()).getColor().equals("negro") && mov.saltoVertical() == 1 && !hayPieza(mov.getPosFinal().getFila(), mov.getPosFinal().getColumna()) && mov.esDiagonal()) {
-            if (devuelvePieza(pos) != null && devuelvePieza(pos).getColor().equals("blanco") && devuelvePieza(pos).getMovimientos() == 1 && mov.getPosInicial().getFila() == 4) {
-                passant = true;
-            }
-        }
-        return passant;
-    }
+
 
     public boolean reyAhogadoBlanco(Juego juego) {
         boolean ahogadoblanco = false;
@@ -651,6 +714,8 @@ public class Tablero {
         } else if (juego.getTurno().equals("N")&&reyAhogadoNegro(juego)) {
             fin=true;
         }
+
+
         return fin;
     }
 

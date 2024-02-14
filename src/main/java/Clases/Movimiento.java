@@ -46,7 +46,7 @@ public class Movimiento {
     /**
      * Comprueba si el movimiento es vertical.
      * @return true si el movimiento es vertical, false de lo contrario.
-     * Pertenecen a la misma columna, o sea la columna es 0 (A), 1(B), pero la fila puede ser 1, 2, 3 , etc.
+     * Pertenecen a la misma columna, o sea la columna es solo 0 (A), o solo 1(B), pero la fila puede ser 1, 2, 3 , etc.
      */
     public boolean esVertical() {
         return posInicial.getColumna() == posFinal.getColumna() && posInicial.getFila() != posFinal.getFila();
@@ -55,7 +55,7 @@ public class Movimiento {
     /**
      * Comprueba si el movimiento es horizontal.
      * @return true si el movimiento es horizontal, false de lo contrario.
-     * Lo mismo aqui pero al reves, la fila solo puede 1, ni dos ni tres, pero sus columnas puedes ser 0 (A), 1(B), etc.
+     * Lo mismo aqui pero al reves, la fila solo puede 1, o solo dos o solo tres, pero sus columnas puedes ser 0 (A), 1(B), etc.
      */
     public boolean esHorizontal() {
         return posInicial.getColumna() != posFinal.getColumna() && posInicial.getFila() == posFinal.getFila();
